@@ -1,0 +1,10 @@
+{
+    "name": "PonyWarrior-PonyQOL2",
+    "version_number": "0.2.0",
+    "website_url": "",
+    "description": "",
+    "dependencies": [
+      "SGG_Modding-DemonDaemon-1.0.0",
+      "SGG_Modding-ModUtil-3.0.0"
+    ]
+  }
