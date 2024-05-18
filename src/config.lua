@@ -2,7 +2,8 @@ local config = {
 	Enabled = true,
 	AllUnlockedToolsUsable = {
 		-- Enable to be able to use any tool you've unlocked to harvest resources
-		Enabled = true
+		-- Doesn't do anything since patch 1
+		Enabled = false
 	},
 	AlwaysEncounterStoryRooms = {
 		-- Enable to always encounter story rooms during your runs

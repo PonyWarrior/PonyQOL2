@@ -16,14 +16,16 @@ if mod.Config.AllUnlockedToolsUsable.Enabled then
 end
 
 if mod.Config.AlwaysEncounterStoryRooms.Enabled then
+	--Arachne
 	RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
 
+	--Narcissus
 	RoomSetData.G.G_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.G.G_Story01.ForceAtBiomeDepthMax = 6
 
-	RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
-	RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
+	-- RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
+	-- RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
 
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMax = 5
