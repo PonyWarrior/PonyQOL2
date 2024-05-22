@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Ported to h2m format
+
+### Added
+
+- Added proximity indicator
+
 ## [0.4.0] - 2024-05-18
 
 ### Added

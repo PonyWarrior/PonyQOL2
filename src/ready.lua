@@ -1,52 +1,44 @@
-local mod = PonyQOL2
+---@meta _
+-- globals we define are private to our plugin!
+---@diagnostic disable: lowercase-global
 
-if not mod.Config.Enabled then return end
+-- here is where your mod sets up all the things it will do.
+-- this file will not be reloaded if it changes during gameplay
+-- 	so you will most likely want to have it reference
+--	values and functions later defined in `reload.lua`.
 
-if mod.Config.AllUnlockedToolsUsable.Enabled then
-	ModUtil.Path.Override("HasAccessToTool", function(toolName)
-		if GameState.WorldUpgrades[toolName] then
-			return true
-		end
-		if HasFamiliarTool(toolName) then
-			return true
-		end
+data = modutil.mod.Mod.Register(_PLUGIN.guid).Data
 
-		return false
-	end, mod)
-end
-
-if mod.Config.AlwaysEncounterStoryRooms.Enabled then
-	--Arachne
+if config.AlwaysEncounterStoryRooms.Enabled then
 	RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
 
-	--Narcissus
 	RoomSetData.G.G_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.G.G_Story01.ForceAtBiomeDepthMax = 6
 
-	-- RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
-	-- RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
+	RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
+	RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
 
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMax = 5
 end
 
-if mod.Config.GodMode.Enabled then
+if config.GodMode.Enabled then
 	ModUtil.Path.Override("CalcEasyModeMultiplier", function(...)
-		local easyModeMultiplier = 1 - mod.Config.GodMode.FixedValue
+		local easyModeMultiplier = 1 - config.GodMode.FixedValue
 		return easyModeMultiplier
-	end, mod)
+	end)
 end
 
-if mod.Config.UltraWide.Enabled then
+if config.UltraWide.Enabled then
 	ModUtil.Path.Wrap("UpdateConfigOptionCache", function(base)
 		base()
 		ScreenState.NeedsLetterbox = false
 		ScreenState.NeedsPillarbox = false
-	end, mod)
+	end)
 end
 
-if mod.Config.BossNumericHealth then
+if config.BossNumericHealth then
 	ModUtil.Path.Override("CreateBossHealthBar", function(boss)
 		local encounter = CurrentRun.CurrentRoom.Encounter
 		if encounter ~= nil and encounter.UseGroupHealthBar ~= nil then
@@ -171,7 +163,7 @@ if mod.Config.BossNumericHealth then
 		EnemyHealthDisplayAnchors[boss.ObjectId .. "numeric"] = boss.NumericHealthbar
 		--Mod end
 		thread(BossHealthBarPresentation, boss)
-	end, mod)
+	end)
 
 	ModUtil.Path.Override("CreateGroupHealthBar", function(encounter)
 		encounter.HasHealthBar = true
@@ -357,7 +349,7 @@ if mod.Config.BossNumericHealth then
 		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - predictedHealthPercent, DestinationId = screenId, Instant = true })
 		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - displayedHealthPercent, DestinationId = scorchId, Instant = true })
 		thread(UpdateEnemyHealthBarFalloff, enemy)
-	end, mod)
+	end)
 
 	ModUtil.Path.Override("UpdateGroupHealthBarReal", function(args)
 		local enemy = args[1]
@@ -395,11 +387,92 @@ if mod.Config.BossNumericHealth then
 			Destroy({ Id = numericHealthBar })
 		end
 		base(unit)
-	end, mod)
+	end)
 end
 
-if mod.Config.QuitAnywhere.Enabled then
+if config.QuitAnywhere.Enabled then
 	ModUtil.Path.Override("InvalidateCheckpoint", function()
 		ValidateCheckpoint({ Value = true })
-	end, mod)
+	end)
+end
+
+if config.ProximityIndicator.Enabled then
+	OnPlayerMoveStarted {
+		function(args)
+			if CurrentRun.Hero.OutgoingDamageModifiers ~= nil and not IsEmpty(CurrentRun.Hero.OutgoingDamageModifiers) then
+				local threshold = nil
+				for i, modifierData in pairs(CurrentRun.Hero.OutgoingDamageModifiers) do
+					if modifierData.ProximityThreshold then
+						threshold = modifierData.ProximityThreshold
+					end
+				end
+				if threshold ~= nil and data.ProximityFlag ~= true then
+					data.ProximityFlag = true
+					thread(TagEnemiesInProximityRange, threshold)
+				end
+			end
+		end
+	}
+
+	OnUsed {
+		function(args)
+			data.ProximityFlag = false
+		end
+	}
+
+	ModUtil.Path.Wrap("Kill", function(base, victim, triggerArgs)
+		base(victim, triggerArgs)
+		if victim.ProximityTagged then
+			StopAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = victim.ObjectId })
+		end
+	end)
+
+	function TagEnemiesInProximityRange(threshold)
+		while data.ProximityFlag == true do
+			for	enemyId, enemy in pairs(ActiveEnemies) do
+				if IsValidEnemy(enemy) then
+					if enemy.ProximityTagged == nil then
+						enemy.ProximityTagged = false
+					end
+					if GetDistance({ Id = CurrentRun.Hero.ObjectId, DestinationId = enemyId }) <= threshold then
+						if not enemy.ProximityTagged then
+							enemy.ProximityTagged = true
+							CreateAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = enemyId, Group = "Overlay" })
+						end
+					else
+						enemy.ProximityTagged = false
+						StopAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = enemyId })
+					end
+				end
+			end
+			wait(0.1)
+		end
+	end
+
+	function IsValidEnemy(enemy)
+		if enemy.IsDead or enemy.InvalidForProximity then
+			return false
+		end
+		if Contains(enemy.InheritFrom, "BaseTrap") then
+			enemy.InvalidForProximity = true
+			return false
+		end
+		if Contains(enemy.InheritFrom, "IsNeutral") then
+			enemy.InvalidForProximity = true
+			return false
+		end
+		if Contains(enemy.InheritFrom, "BaseBreakable") then
+			enemy.InvalidForProximity = true
+			return false
+		end
+		if Contains(enemy.InheritFrom, "BaseAlly") then
+			enemy.InvalidForProximity = true
+			return false
+		end
+		if Contains(enemy.InheritFrom, "BaseFamiliar") then
+			enemy.InvalidForProximity = true
+			return false
+		end
+		return true
+	end
 end

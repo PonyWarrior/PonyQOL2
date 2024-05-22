@@ -1,10 +1,7 @@
-local config = {
-	Enabled = true,
-	AllUnlockedToolsUsable = {
-		-- Enable to be able to use any tool you've unlocked to harvest resources
-		-- Doesn't do anything since patch 1
-		Enabled = false
-	},
+return {
+	version = 0,
+	enabled = true,
+	message = 'Hello World!',
 	AlwaysEncounterStoryRooms = {
 		-- Enable to always encounter story rooms during your runs
 		Enabled = true
@@ -27,7 +24,9 @@ local config = {
 	QuitAnywhere = {
 		--Enable to be able to Quit anywhere and anytime
 		Enabled = true
+	},
+	ProximityIndicator = {
+		--Enable to show an indicator on close enemies when using Aphrodite boons
+		Enabled = true,
 	}
 }
-PonyQOL2.Config = config
-return config
