@@ -52,8 +52,7 @@ if config.BossNumericHealth then
 					offsetY = boss.HealthBarOffsetY
 				end
 				-- Invisible health bar for effect purposes
-				local screenId = SpawnObstacle({ Name = "BlankObstacle", Group = "Combat_UI_World", DestinationId = boss
-				.ObjectId, Attach = true, OffsetY = offsetY, TriggerOnSpawn = false })
+				local screenId = SpawnObstacle({ Name = "BlankObstacle", Group = "Combat_UI_World", DestinationId = boss.ObjectId, Attach = true, OffsetY = offsetY, TriggerOnSpawn = false })
 				EnemyHealthDisplayAnchors[boss.ObjectId] = screenId
 			end
 			if not encounter.HasHealthBar then
@@ -81,17 +80,14 @@ if config.BossNumericHealth then
 			return
 		end
 
-		ScreenAnchors.BossHealthBack = CreateScreenObstacle({ Name = "BossHealthBarBack", Group = "Combat_UI", X =
-		xOffset, Y = 70 + yOffset })
+		ScreenAnchors.BossHealthBack = CreateScreenObstacle({ Name = "BossHealthBarBack", Group = "Combat_UI", X = xOffset, Y = 70 + yOffset })
 		ScreenAnchors.BossHealthTitles[boss.ObjectId] = ScreenAnchors.BossHealthBack
 
-		local fallOffBar = CreateScreenObstacle({ Name = "BossHealthBarFillFalloff", Group = "Combat_UI", X = xOffset, Y = 72 +
-		yOffset })
+		local fallOffBar = CreateScreenObstacle({ Name = "BossHealthBarFillFalloff", Group = "Combat_UI", X = xOffset, Y = 72 + yOffset })
 		SetColor({ Id = fallOffBar, Color = Color.HealthFalloff })
 		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillSlowBoss", Fraction = 0, DestinationId = fallOffBar, Instant = true })
 
-		ScreenAnchors.BossHealthFill = CreateScreenObstacle({ Name = "BossHealthBarFill", Group = "Combat_UI", X =
-		xOffset, Y = 72 + yOffset })
+		ScreenAnchors.BossHealthFill = CreateScreenObstacle({ Name = "BossHealthBarFill", Group = "Combat_UI", X = xOffset, Y = 72 + yOffset })
 
 		CreateAnimation({ Name = "BossNameShadow", DestinationId = ScreenAnchors.BossHealthBack })
 
@@ -131,8 +127,7 @@ if config.BossNumericHealth then
 			AutoSetDataProperties = true,
 		})
 		--Mod start
-		boss.NumericHealthbar = CreateScreenObstacle({ Name = "BlankObstacle", Group = "Combat_UI", X = xOffset, Y = 112 +
-		yOffset })
+		boss.NumericHealthbar = CreateScreenObstacle({ Name = "BlankObstacle", Group = "Combat_UI", X = xOffset, Y = 112 + yOffset })
 		CreateTextBox({
 			Id = boss.NumericHealthbar,
 			Text = boss.Health .. "/" .. boss.MaxHealth,
@@ -159,8 +154,7 @@ if config.BossNumericHealth then
 		EnemyHealthDisplayAnchors[boss.ObjectId .. "back"] = ScreenAnchors.BossHealthBack
 
 		boss.HealthBarFill = "EnemyHealthBarFillBoss"
-		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillBoss", Fraction = boss.Health / boss.MaxHealth, DestinationId =
-		screenId })
+		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillBoss", Fraction = boss.Health / boss.MaxHealth, DestinationId = screenId })
 		SetAlpha({ Ids = { ScreenAnchors.BossHealthFill, fallOffBar }, Fraction = 0.01, Duration = 0.0 })
 		SetAlpha({ Ids = { ScreenAnchors.BossHealthFill, fallOffBar }, Fraction = 1, Duration = 2.0 })
 		EnemyHealthDisplayAnchors[boss.ObjectId] = ScreenAnchors.BossHealthFill
@@ -180,17 +174,14 @@ if config.BossNumericHealth then
 			ScreenAnchors.BossHealthTitles = {}
 		end
 
-		ScreenAnchors.BossHealthBack = CreateScreenObstacle({ Name = "BossHealthBarBack", Group = "Combat_UI", X =
-		xOffset, Y = 70 + yOffset })
+		ScreenAnchors.BossHealthBack = CreateScreenObstacle({ Name = "BossHealthBarBack", Group = "Combat_UI", X = xOffset, Y = 70 + yOffset })
 		ScreenAnchors.BossHealthTitles[encounter.Name] = ScreenAnchors.BossHealthBack
 
-		local fallOffBar = CreateScreenObstacle({ Name = "BossHealthBarFillFalloff", Group = "Combat_UI", X = xOffset, Y = 72 +
-		yOffset })
+		local fallOffBar = CreateScreenObstacle({ Name = "BossHealthBarFillFalloff", Group = "Combat_UI", X = xOffset, Y = 72 + yOffset })
 		SetColor({ Id = fallOffBar, Color = Color.HealthFalloff })
 		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillSlowBoss", Fraction = 0, DestinationId = fallOffBar, Instant = true })
 
-		ScreenAnchors.BossHealthFill = CreateScreenObstacle({ Name = "BossHealthBarFill", Group = "Combat_UI", X =
-		xOffset, Y = 72 + yOffset })
+		ScreenAnchors.BossHealthFill = CreateScreenObstacle({ Name = "BossHealthBarFill", Group = "Combat_UI", X = xOffset, Y = 72 + yOffset })
 
 		CreateAnimation({ Name = "BossNameShadow", DestinationId = ScreenAnchors.BossHealthBack })
 
@@ -218,8 +209,7 @@ if config.BossNumericHealth then
 			AutoSetDataProperties = true,
 		})
 		--Mod start
-		ScreenAnchors.NumericHealthbar = CreateScreenObstacle({ Name = "BlankObstacle", Group = "Combat_UI", X = xOffset, Y = 112 +
-		yOffset })
+		ScreenAnchors.NumericHealthbar = CreateScreenObstacle({ Name = "BlankObstacle", Group = "Combat_UI", X = xOffset, Y = 112 + yOffset })
 		CreateTextBox({
 			Id = ScreenAnchors.NumericHealthbar,
 			Text = encounter.GroupHealth .. "/" .. encounter.GroupMaxHealth,
@@ -246,8 +236,7 @@ if config.BossNumericHealth then
 		EnemyHealthDisplayAnchors[encounter.Name .. "back"] = ScreenAnchors.BossHealthBack
 
 		encounter.HealthBarFill = "EnemyHealthBarFillBoss"
-		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillBoss", Fraction = 1, DestinationId = ScreenAnchors
-		.BossHealthFill })
+		SetAnimationFrameTarget({ Name = "EnemyHealthBarFillBoss", Fraction = 1, DestinationId = ScreenAnchors.BossHealthFill })
 		SetAlpha({ Ids = { ScreenAnchors.BossHealthFill, fallOffBar }, Fraction = 0.01, Duration = 0.0 })
 		SetAlpha({ Ids = { ScreenAnchors.BossHealthFill, fallOffBar }, Fraction = 1, Duration = 2.0 })
 		EnemyHealthDisplayAnchors[encounter.Name] = ScreenAnchors.BossHealthFill
@@ -276,10 +265,8 @@ if config.BossNumericHealth then
 			if enemy.UseBossHealthBar then
 				CurrentRun.BossHealthBarRecord[enemy.Name] = 0
 			end
-			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1, DestinationId =
-			scorchId, Instant = true })
-			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1, DestinationId =
-			screenId, Instant = true })
+			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1, DestinationId = scorchId, Instant = true })
+			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1, DestinationId = screenId, Instant = true })
 			--Mod start
 			if numericHealthBar ~= nil then
 				Destroy({ Id = numericHealthBar })
@@ -300,10 +287,9 @@ if config.BossNumericHealth then
 		if enemy.UseBossHealthBar then
 			local healthFraction = currentHealth / maxHealth
 			CurrentRun.BossHealthBarRecord[enemy.Name] = healthFraction
-			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - healthFraction, DestinationId =
-			screenId, Instant = true })
+			SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - healthFraction, DestinationId = screenId, Instant = true })
 			--Mod start
-			ModifyTextBox({ Id = numericHealthBar, Text = currentHealth .. "/" .. maxHealth })
+			ModifyTextBox({ Id = numericHealthBar, Text = round(currentHealth) .. "/" .. maxHealth })
 			--Mod end
 			if enemy.HitShields > 0 then
 				SetColor({ Id = screenId, Color = Color.HitShield })
@@ -347,8 +333,7 @@ if config.BossNumericHealth then
 		elseif enemy.HealthBuffer ~= nil and enemy.HealthBuffer > 0 then
 			displayedHealthPercent = enemy.HealthBuffer / enemy.MaxHealthBuffer
 			if enemy.ActiveEffects and enemy.ActiveEffects.BurnEffect then
-				predictedHealthPercent = math.max(0, enemy.HealthBuffer - enemy.ActiveEffects.BurnEffect) /
-				enemy.MaxHealthBuffer
+				predictedHealthPercent = math.max(0, enemy.HealthBuffer - enemy.ActiveEffects.BurnEffect) / enemy.MaxHealthBuffer
 			else
 				predictedHealthPercent = displayedHealthPercent
 			end
@@ -361,10 +346,8 @@ if config.BossNumericHealth then
 			end
 		end
 		enemy.DisplayedHealthFraction = displayedHealthPercent
-		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 -
-		predictedHealthPercent, DestinationId = screenId, Instant = true })
-		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 -
-		displayedHealthPercent, DestinationId = scorchId, Instant = true })
+		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - predictedHealthPercent, DestinationId = screenId, Instant = true })
+		SetAnimationFrameTarget({ Name = enemy.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - displayedHealthPercent, DestinationId = scorchId, Instant = true })
 		thread(UpdateEnemyHealthBarFalloff, enemy)
 	end)
 
@@ -391,11 +374,10 @@ if config.BossNumericHealth then
 		local healthFraction = currentHealth / maxHealth
 		CurrentRun.BossHealthBarRecord[encounter.Name] = healthFraction
 		--Mod start
-		ModifyTextBox({ Id = numericHealthBar, Text = currentHealth .. "/" .. maxHealth })
+		ModifyTextBox({ Id = numericHealthBar, Text = round(currentHealth) .. "/" .. maxHealth })
 		--Mod end
 
-		SetAnimationFrameTarget({ Name = encounter.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - healthFraction, DestinationId =
-		screenId, Instant = true })
+		SetAnimationFrameTarget({ Name = encounter.HealthBarFill or "EnemyHealthBarFill", Fraction = 1 - healthFraction, DestinationId = screenId, Instant = true })
 		thread(UpdateGroupHealthBarFalloff, encounter)
 	end)
 
@@ -417,32 +399,33 @@ end
 if config.ProximityIndicator.Enabled then
 	OnPlayerMoveStarted {
 		function(args)
-			if CurrentRun.Hero.OutgoingDamageModifiers ~= nil and not IsEmpty(CurrentRun.Hero.OutgoingDamageModifiers) then
-				local threshold = nil
-				for i, modifierData in pairs(CurrentRun.Hero.OutgoingDamageModifiers) do
-					if modifierData.ProximityThreshold then
-						threshold = modifierData.ProximityThreshold
-					end
-				end
-				if threshold ~= nil and data.ProximityFlag ~= true then
-					data.ProximityFlag = true
+			local threshold = GetProximityThreshold()
+			if threshold ~= nil then
+				data.ProximityFlag = true
+				if not HasThread("TagEnemiesInProximityRange") then
 					thread(TagEnemiesInProximityRange, threshold)
 				end
+			else
+				data.ProximityFlag = false
+				killTaggedThreads("TagEnemiesInProximityRange")
 			end
 		end
 	}
 
-	OnUsed {
-		function(args)
-			data.ProximityFlag = false
+	function GetProximityThreshold()
+		if HeroHasTrait("AphroditeWeaponBoon") or HeroHasTrait("AphroditeSpecialBoon") then
+			-- 430
+			return TraitData.AphroditeWeaponBoon.AddOutgoingDamageModifiers.ProximityThreshold
+		else
+			return nil
 		end
-	}
+	end
 
 	ModUtil.Path.Wrap("Kill", function(base, victim, triggerArgs)
-		base(victim, triggerArgs)
 		if victim.ProximityTagged then
-			StopAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = victim.ObjectId })
+			SetColor({ Id = victim.ObjectId, Color = { 255, 255, 255, 255 }, Duration = 0.005 })
 		end
+		base(victim, triggerArgs)
 	end)
 
 	function TagEnemiesInProximityRange(threshold)
@@ -458,12 +441,11 @@ if config.ProximityIndicator.Enabled then
 					if GetDistance({ Id = CurrentRun.Hero.ObjectId, DestinationId = enemyId }) <= threshold then
 						if not enemy.ProximityTagged then
 							enemy.ProximityTagged = true
-							CreateAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = enemyId, Group =
-							"Overlay" })
+							SetColor({ Id = enemyId, Color = { 255, 0, 255, 255 }, Duration = 0.005 })
 						end
 					else
 						enemy.ProximityTagged = false
-						StopAnimation({ Name = "BoonSymbolAphroditeIcon", DestinationId = enemyId })
+						SetColor({ Id = enemyId, Color = { 255, 255, 255, 255 }, Duration = 0.005 })
 					end
 				end
 			end
@@ -534,5 +516,74 @@ end
 if config.ChronosPause.Enabled then
 	ModUtil.Path.Override("SetupPauseMenuTakeover", function(source, args)
 		-- do nothing
+	end)
+end
+
+if config.SlowEffectsOnTimer.Enabled then
+	ModUtil.Path.Override("UpdateTimers", function(elapsed)
+		if CurrentRun == nil then
+			return
+		end
+
+		GameState.TotalTime = GameState.TotalTime + elapsed
+		-- MOD START
+		local timeMult = GetGameplayElapsedTimeMultiplier()
+		elapsed = elapsed * timeMult
+		-- MOD END
+		CurrentRun.TotalTime = CurrentRun.TotalTime + elapsed
+
+		if CurrentRun.Hero.IsDead then
+			return
+		end
+
+		if not IsEmpty(CurrentRun.BlockTimerFlags) then
+			return
+		end
+
+		GameState.GameplayTime = GameState.GameplayTime + elapsed
+		CurrentRun.GameplayTime = CurrentRun.GameplayTime + elapsed
+		if CurrentRun.ActiveBiomeTimerKeepsake and not IsBiomeTimerPaused() and HeroHasTrait("SpeedRunBossKeepsake") and not CurrentRun.SpeedRunBossKeepsakeTriggered then
+			CurrentRun.BiomeTimeKeepsake = CurrentRun.BiomeTimeKeepsake - elapsed
+			if CurrentRun.BiomeTimeKeepsake <= 0 and (CurrentRun.BiomeTimeKeepsake + elapsed) > 0 then
+				thread(SpeedKeepsakeExpiredPresentation)
+			end
+		end
+		if HeroHasTrait("TimedBuffKeepsake") then
+			if not IsBiomeTimerPaused() then
+				local traitData = GetHeroTrait("TimedBuffKeepsake")
+				traitData.CurrentTime = traitData.CurrentTime - elapsed
+				if traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
+					traitData.CustomTrayText = traitData.ZeroBonusTrayText
+					EndTimedBuff(traitData)
+					thread(TimedBuffExpiredPresentation, traitData)
+					ReduceTraitUses(traitData, { Force = true })
+				end
+			end
+		end
+
+		if HeroHasTrait("ChaosTimeCurse") then
+			if not IsBiomeTimerPaused() then
+				local traitData = GetHeroTrait("ChaosTimeCurse")
+				traitData.CurrentTime = traitData.CurrentTime - elapsed
+				local threshold = 30
+				if traitData.CurrentTime <= threshold and (traitData.CurrentTime + elapsed) > threshold then
+					ChaosTimerAboutToExpirePresentation(threshold)
+				elseif traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
+					thread(SacrificeHealth,
+						{ SacrificeHealthMin = traitData.Damage, SacrificeHealthMax = traitData.Damage, MinHealth = 0 })
+					thread(RemoveTraitData, CurrentRun.Hero, traitData)
+				end
+			end
+		end
+
+		if CurrentRun.ActiveBiomeTimer and not IsBiomeTimerPaused() then
+			CurrentRun.BiomeTime = CurrentRun.BiomeTime - elapsed
+			local threshold = 30
+			if CurrentRun.BiomeTime <= threshold and (CurrentRun.BiomeTime + elapsed) > threshold then
+				BiomeTimerAboutToExpirePresentation(threshold)
+			elseif CurrentRun.BiomeTime <= 0 and (CurrentRun.BiomeTime + elapsed) > 0 then
+				BiomeTimerExpiredPresentation()
+			end
+		end
 	end)
 end

@@ -15,33 +15,37 @@ Follow instructions on Hell 2 Modding's readme.
 ## Features
 
 - AlwaysEncounterStoryRooms
-- Enabled by default
-- When enabled, you will always encounter story rooms in your runs.
+    - Enabled by default
+    - When enabled, you will always encounter story rooms in your runs.
 
 - GodMode
-- Disabled by default
-- Enable to set a fixed damage resistance value for god mode.
+    - Disabled by default
+    - Enable to set a fixed damage resistance value for god mode.
 
 - Ultrawide
-- Disabled by default
-- Enable to always disable pillarboxing on ultrawide resolutions.
+    - Disabled by default
+    - Enable to always disable pillarboxing on ultrawide resolutions.
 
 - BossNumericHealth
-- Enabled by default
-- Displays the numeric health of bosses under their health bar.
+    - Enabled by default
+    - Displays the numeric health of bosses under their health bar.
 
 - QuitAnywhere
-- Enabled by default
-- Lets you quit anytime and anywhere, never forcing you to give up.
+    - Enabled by default
+    - Lets you quit anytime and anywhere, never forcing you to give up.
 
 - ProximityIndicator
-- Enabled by default
-- Shows an indicator on close enemies when using Aphrodite boons.
+    - Enabled by default
+    - Shows an indicator on close enemies when using Aphrodite boons.
 
 - SprintHitbox
-- Enabled by default
-- Shows the sprint's hitbox.
+    - Enabled by default
+    - Shows the sprint's hitbox.
 
 - ChronosPause
-- Disabled by default
-- Lets you pause during the Chronos boss fight without having performed the incantation.
+    - Disabled by default
+    - Lets you pause during the Chronos boss fight without having performed the incantation.
+
+- SlowEffectsOnTimer
+    - Enabled by default
+    - Makes slow effects affect the in game timer.

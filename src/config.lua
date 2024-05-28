@@ -28,6 +28,9 @@ local config = {
 	ChronosPause = {
 		Enabled = false
 	},
+	SlowEffectsOnTimer = {
+		Enabled = true
+	},
 }
 
 local description = {
@@ -58,6 +61,9 @@ local description = {
 	},
 	ChronosPause = {
 		Enabled = "Enable to be able to pause during the Chronos boss fight without having performed the incantation."
+	},
+	SlowEffectsOnTimer = {
+		Enabled = "Enable to make slow effects affect the in game timer."
 	},
 }
 
