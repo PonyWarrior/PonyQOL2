@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a rare crash with proximity indicator
+- Fixed boss numeric health config disabling not working
+
+### Added
+
+- Added door indicators
+
 ## [0.6.0] - 2024-05-28
 
 ### Added

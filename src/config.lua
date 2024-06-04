@@ -31,6 +31,9 @@ local config = {
 	SlowEffectsOnTimer = {
 		Enabled = true
 	},
+	DoorIndicators = {
+		Enabled = true
+	},
 }
 
 local description = {
@@ -64,6 +67,9 @@ local description = {
 	},
 	SlowEffectsOnTimer = {
 		Enabled = "Enable to make slow effects affect the in game timer."
+	},
+	DoorIndicators = {
+		Enabled = "Enable to show indicators on doors, showing if the next room contains a fountain and/or resources. If PonyAO is installed it also shows which rooms contain pylons in Ephyra."
 	},
 }
 

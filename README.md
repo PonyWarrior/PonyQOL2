@@ -49,3 +49,7 @@ Follow instructions on Hell 2 Modding's readme.
 - SlowEffectsOnTimer
     - Enabled by default
     - Makes slow effects affect the in game timer.
+
+- DoorIndicators
+    - Enabled by default
+    - Shows indicators on doors, showing if the next room contains a fountain and/or resources. If PonyAO is installed it also shows which rooms contain pylons in Ephyra.

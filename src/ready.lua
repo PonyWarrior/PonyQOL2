@@ -7,6 +7,10 @@
 -- 	so you will most likely want to have it reference
 --	values and functions later defined in `reload.lua`.
 
+ModUtil.LoadOnce(function()
+	rom.data.reload_game_data()
+end)
+
 data = modutil.mod.Mod.Register(_PLUGIN.guid).Data
 
 if config.AlwaysEncounterStoryRooms.Enabled then
@@ -38,7 +42,7 @@ if config.UltraWide.Enabled then
 	end)
 end
 
-if config.BossNumericHealth then
+if config.BossNumericHealth.Enabled then
 	ModUtil.Path.Override("CreateBossHealthBar", function(boss)
 		local encounter = CurrentRun.CurrentRoom.Encounter
 		if encounter ~= nil and encounter.UseGroupHealthBar ~= nil then
@@ -422,6 +426,9 @@ if config.ProximityIndicator.Enabled then
 	end
 
 	ModUtil.Path.Wrap("Kill", function(base, victim, triggerArgs)
+		if victim == nil then
+			return
+		end
 		if victim.ProximityTagged then
 			SetColor({ Id = victim.ObjectId, Color = { 255, 255, 255, 255 }, Duration = 0.005 })
 		end
@@ -585,5 +592,33 @@ if config.SlowEffectsOnTimer.Enabled then
 				BiomeTimerExpiredPresentation()
 			end
 		end
+	end)
+end
+
+if config.DoorIndicators.Enabled then
+
+	-- local filetest = rom.path.combine(rom.paths.Content, 'Game/Animations/GUIAnimations.sjson')
+
+	-- local order = {
+	-- 	"Name",
+	-- 	"FilePath",
+	-- 	"InheritFrom"
+	-- }
+
+	-- local newData = sjson.to_object({
+	-- 	Name = "PylonIcon",
+	-- 	FilePath = "GUI\\Icons\\GhostPack",
+	-- 	InheritFrom = "BaseMiniRoomPreviewIcon"
+	-- }, order)
+
+	-- sjson.hook(filetest, function(sjsonData)
+	-- 	table.insert(sjsonData.Animations, newData)
+	-- end)
+	ModUtil.Path.Override("EphyraZoomOut", function(usee)
+		EphyraZoomOut_override(usee)
+	end)
+
+	ModUtil.Path.Override("CreateDoorRewardPreview", function(exitDoor, chosenRewardType, chosenLootName, index, args)
+		CreateDoorRewardPreview_override(exitDoor, chosenRewardType, chosenLootName, index, args)
 	end)
 end
