@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed a rare crash with proximity indicator
 - Fixed boss numeric health config disabling not working
+- Fixed for ModUtil 4.0
 
 ### Added
 
