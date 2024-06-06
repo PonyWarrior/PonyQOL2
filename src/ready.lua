@@ -596,24 +596,6 @@ if config.SlowEffectsOnTimer.Enabled then
 end
 
 if config.DoorIndicators.Enabled then
-
-	-- local filetest = rom.path.combine(rom.paths.Content, 'Game/Animations/GUIAnimations.sjson')
-
-	-- local order = {
-	-- 	"Name",
-	-- 	"FilePath",
-	-- 	"InheritFrom"
-	-- }
-
-	-- local newData = sjson.to_object({
-	-- 	Name = "PylonIcon",
-	-- 	FilePath = "GUI\\Icons\\GhostPack",
-	-- 	InheritFrom = "BaseMiniRoomPreviewIcon"
-	-- }, order)
-
-	-- sjson.hook(filetest, function(sjsonData)
-	-- 	table.insert(sjsonData.Animations, newData)
-	-- end)
 	ModUtil.Path.Override("EphyraZoomOut", function(usee)
 		EphyraZoomOut_override(usee)
 	end)
@@ -622,3 +604,32 @@ if config.DoorIndicators.Enabled then
 		CreateDoorRewardPreview_override(exitDoor, chosenRewardType, chosenLootName, index, args)
 	end)
 end
+
+if config.PermanentLocationCount.Enabled then
+	ModUtil.Path.Wrap("ShowHealthUI", function(base)
+		base()
+		ShowDepthCounter()
+	end)
+
+	ModUtil.Path.Wrap("TraitTrayScreenClose", function(base, ...)
+		base(...)
+		ShowDepthCounter()
+	end)
+end
+
+if config.RepeatableChaosTrials.Enabled then
+	ModUtil.Path.Override("BountyBoardScreenDisplayCategory", function(screen, categoryIndex)
+		BountyBoardScreenDisplayCategory_override(screen, categoryIndex)
+	end)
+
+	ModUtil.Path.Wrap("MouseOverBounty", function(base, button)
+		base(button)
+		if GameState.BountiesCompleted[button.Data.Name] then
+			SetAlpha({ Id = button.Screen.Components.SelectButton.Id, Fraction = 1.0, Duration = 0.2 })
+		end
+	end)
+end
+
+ModUtil.Path.Override("IsPauseBlocked", function()
+	return false
+end)

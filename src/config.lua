@@ -34,6 +34,13 @@ local config = {
 	DoorIndicators = {
 		Enabled = true
 	},
+	PermanentLocationCount = {
+		Enabled = true
+	},
+	RepeatableChaosTrials = {
+		Enabled = true,
+		RepeatableReward = false
+	},
 }
 
 local description = {
@@ -70,6 +77,13 @@ local description = {
 	},
 	DoorIndicators = {
 		Enabled = "Enable to show indicators on doors, showing if the next room contains a fountain and/or resources. If PonyAO is installed it also shows which rooms contain pylons in Ephyra."
+	},
+	PermanentLocationCount = {
+		Enabled = "Enable to permanently show the location counter."
+	},
+	RepeatableChaosTrials = {
+		Enabled = "Enable to make all Chaos Trials repeatable.",
+		RepeatableReward = "Enable to make repeating Chaos Trials still grant Stardust."
 	},
 }
 

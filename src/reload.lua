@@ -478,3 +478,166 @@ if config.DoorIndicators.Enabled then
 		Destroy({ Ids = letterboxIds })
 	end
 end
+
+if config.PermanentLocationCount.Enabled then
+	function ShowDepthCounter()
+		local screen = { Name = "RoomCount", Components = {} }
+		screen.ComponentData = {
+			RoomCount = DeepCopyTable(ScreenData.TraitTrayScreen.ComponentData.RoomCount)
+		}
+		CreateScreenFromData(screen, screen.ComponentData)
+	end
+end
+
+if config.RepeatableChaosTrials.Enabled then
+	function BountyBoardScreenDisplayCategory_override(screen, categoryIndex)
+		local components = screen.Components
+		local slotName = screen.ItemCategories[categoryIndex].Name
+		local category = screen.ItemCategories[categoryIndex]
+		local slotName = category.Name
+		screen.ActiveCategoryIndex = categoryIndex
+		screen.ItemStartX = screen.ItemStartX + ScreenCenterNativeOffsetX
+		screen.ItemStartY = screen.ItemStartY + ScreenCenterNativeOffsetY
+		local itemLocationX = screen.ItemStartX
+		local itemLocationY = screen.ItemStartY
+		local activeBounties = {}
+		local completedBounties = {}
+		local ineligibleBounties = {}
+
+		for i, bountyName in ipairs(screen.ItemCategories[screen.ActiveCategoryIndex]) do
+			local bountyData = BountyData[bountyName]
+			if not bountyData.DebugOnly then
+				bountyData.BestClearTime = 5999.99
+				bountyData.BestClearTimeString = GetTimerString(bountyData.BestClearTime, 2)
+				local allRuns = ShallowCopyTable(GameState.RunHistory)
+				table.insert(allRuns, CurrentRun)
+				for runIndex, run in pairs(allRuns) do
+					if run.BountyCleared and run.ActiveBounty == bountyData.Name and run.GameplayTime < bountyData.BestClearTime then
+						bountyData.BestClearTime = run.GameplayTime
+						bountyData.BestClearTimeString = GetTimerString(bountyData.BestClearTime, 2)
+					end
+				end
+
+				if GameState.BountiesCompleted[bountyName] then
+					table.insert(completedBounties, bountyData)
+				elseif IsGameStateEligible(CurrentRun, bountyData, bountyData.UnlockGameStateRequirements) then
+					table.insert(activeBounties, bountyData)
+				else
+					table.insert(ineligibleBounties, bountyData)
+				end
+			end
+		end
+
+		local firstUseable = false
+		screen.NumItems = 0
+
+		for k, bountyData in ipairs(activeBounties) do
+			-- BountyButton
+			screen.NumItems = screen.NumItems + 1
+			local button = CreateScreenComponent({ Name = "BlankInteractableObstacle", X = itemLocationX, Y = itemLocationY, Group = screen.ComponentData.DefaultGroup })
+			button.MouseOverSound = "/SFX/Menu Sounds/DialoguePanelOutMenu"
+			button.OnPressedFunctionName = "StartPackagedBounty"
+			button.OnMouseOverFunctionName = "MouseOverBounty"
+			button.OnMouseOffFunctionName = "MouseOffBounty"
+			button.Data = bountyData
+			button.Index = screen.NumItems
+			button.Screen = screen
+			AttachLua({ Id = button.Id, Table = button })
+			local bountyButtonKey = screen.ButtonName .. screen.NumItems
+			components[bountyButtonKey] = button
+
+			local activeFormat = screen.ActiveFormat
+			activeFormat.Id = button.Id
+			activeFormat.Text = bountyData.Text or bountyData.Name
+			activeFormat.LuaKey = "TempTextData"
+			activeFormat.LuaValue = bountyData
+			CreateTextBox(activeFormat)
+
+			newButtonKey = "NewIcon" .. screen.NumItems
+			if not GameState.QuestsViewed[bountyData.Name] then
+				-- New icon
+				components[newButtonKey] = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu" })
+				SetAnimation({ DestinationId = components[newButtonKey].Id, Name = "QuestLogNewQuest" })
+				Attach({ Id = components[newButtonKey].Id, DestinationId = components[bountyButtonKey].Id, OffsetX = screen.NewIconOffsetX, OffsetY = screen.NewIconOffsetY })
+			end
+
+			if IsGameStateEligible(CurrentRun, bountyData, bountyData.CompleteGameStateRequirements) then
+				local activeFlash = screen.ActiveFlash
+				activeFlash.Id = button.Id
+				Flash(activeFlash)
+			end
+
+			itemLocationY = itemLocationY + screen.ItemSpacingY
+		end
+		--MOD START
+		for k, bountyData in ipairs(ineligibleBounties) do
+			-- BountyButton
+			screen.NumItems = screen.NumItems + 1
+			local button = CreateScreenComponent({ Name = "BlankInteractableObstacle", X = itemLocationX, Y = itemLocationY, Group = screen.ComponentData.DefaultGroup })
+			button.MouseOverSound = "/SFX/Menu Sounds/DialoguePanelOutMenu"
+			button.OnMouseOverFunctionName = "MouseOverBounty"
+			button.OnMouseOffFunctionName = "MouseOffBounty"
+			button.OnPressedFunctionName = "BountyBoardIneligiblePresentation"
+			button.Data = bountyData
+			button.Index = screen.NumItems
+			button.Screen = screen
+			AttachLua({ Id = button.Id, Table = button })
+			local bountyButtonKey = screen.ButtonName .. screen.NumItems
+			components[bountyButtonKey] = button
+
+			local ineligibleFormat = screen.IneligibleFormat
+			ineligibleFormat.Id = button.Id
+			ineligibleFormat.Text = bountyData.Text or bountyData.Name
+			ineligibleFormat.LuaKey = "TempTextData"
+			ineligibleFormat.LuaValue = bountyData
+			CreateTextBox(ineligibleFormat)
+
+			itemLocationY = itemLocationY + screen.ItemSpacingY
+		end
+
+		for k, bountyData in ipairs(completedBounties) do
+			-- BountyButton
+			screen.NumItems = screen.NumItems + 1
+			local button = CreateScreenComponent({ Name = "BlankInteractableObstacle", X = itemLocationX, Y = itemLocationY, Group = screen.ComponentData.DefaultGroup })
+			button.MouseOverSound = "/SFX/Menu Sounds/DialoguePanelOutMenu"
+			button.Data = bountyData
+			if bountyData.Repeatable then
+				button.OnPressedFunctionName = "StartPackagedBounty"
+			else
+				button.OnPressedFunctionName = "StartPackagedBounty"
+				if not config.RepeatableChaosTrials.RepeatableReward then
+					button.Data["ForcedReward"] = nil
+					button.Data.LootOptions = {
+						{
+							Name = "MetaCurrencyRange",
+							Overrides =
+							{
+								CanDuplicate = false,
+								AddResources =
+								{
+									MetaCurrency = 50,
+								},
+							},
+						},
+					}
+				end
+			end
+			button.OnMouseOverFunctionName = "MouseOverBounty"
+			button.OnMouseOffFunctionName = "MouseOffBounty"
+			button.Index = screen.NumItems
+			button.Screen = screen
+			AttachLua({ Id = button.Id, Table = button })
+			local bountyButtonKey = screen.ButtonName .. screen.NumItems
+			components[bountyButtonKey] = button
+
+			local completedFormat = screen.CompletedFormat
+			completedFormat.Id = button.Id
+			completedFormat.Text = bountyData.Text or bountyData.Name
+			completedFormat.LuaKey = "TempTextData"
+			completedFormat.LuaValue = bountyData
+			CreateTextBox(completedFormat)
+
+			itemLocationY = itemLocationY + screen.ItemSpacingY
+		end
+	end
+end

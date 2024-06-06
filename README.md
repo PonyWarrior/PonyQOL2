@@ -53,3 +53,11 @@ Follow instructions on Hell 2 Modding's readme.
 - DoorIndicators
     - Enabled by default
     - Shows indicators on doors, showing if the next room contains a fountain and/or resources. If PonyAO is installed it also shows which rooms contain pylons in Ephyra.
+
+- PermanentLocationCount
+    - Enabled by default
+    - Permanently shows the location counter.
+
+- RepeatableChaosTrials
+    - Enabled by default
+    - Maked all Chaos Trials repeatable. Repeatable star dust reward can be enabled. Also shows Chaos trials which you can't do yet.
