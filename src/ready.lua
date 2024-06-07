@@ -629,7 +629,3 @@ if config.RepeatableChaosTrials.Enabled then
 		end
 	end)
 end
-
-ModUtil.Path.Override("IsPauseBlocked", function()
-	return false
-end)
