@@ -61,3 +61,19 @@ Follow instructions on Hell 2 Modding's readme.
 - RepeatableChaosTrials
     - Enabled by default
     - Maked all Chaos Trials repeatable. Repeatable star dust reward can be enabled. Also shows Chaos trials which you can't do yet.
+
+- Skip
+    - Enabled by default
+    - Skip certain cutscenes and events.
+        - RunEndCutscene
+            - Enabled by default
+            - Skip the end run cutscene and returning to main menu with the early access message.
+                - RespawnInTrainingGrounds
+                - Disabled by default
+                - Enable to respawn in the training grounds instead of the crossroads.
+        - DeathCutScene
+            - Disabled by default
+            - Enable to skip the player death cutscene.
+        - RunDialog
+            - Disabled by default
+            - Enable to skip all dialogs during runs.

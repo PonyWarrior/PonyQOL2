@@ -629,3 +629,156 @@ if config.RepeatableChaosTrials.Enabled then
 		end
 	end)
 end
+
+if config.Skip.Enabled then
+	if config.Skip.RunEndCutscene then
+		ModUtil.Path.Override("EndEarlyAccessPresentation", function()
+			AddInputBlock({ Name = "EndEarlyAccessPresentation" })
+			SetPlayerInvulnerable("EndEarlyAccessPresentation")
+
+			CurrentRun.Hero.Mute = true
+			CurrentRun.ActiveBiomeTimer = false
+			ToggleCombatControl(CombatControlsDefaults, false, "EarlyAccessPresentation")
+
+			wait(0.1)
+			StopAmbientSound({ All = true })
+			SetAudioEffectState({ Name = "Reverb", Value = 1.5 })
+			EndAmbience(0.5)
+			EndAllBiomeStates()
+			FadeOut({ Duration = 0.375, Color = Color.Black })
+
+			-- first production / early access
+			EndBiomeRecords()
+			RecordRunCleared()
+
+			-- destroy the player / back to DeathArea
+			SetPlayerVulnerable("EndEarlyAccessPresentation")
+			RemoveInputBlock({ Name = "EndEarlyAccessPresentation" })
+			ToggleCombatControl(CombatControlsDefaults, true, "EarlyAccessPresentation")
+
+			CurrentRun.Hero.Mute = false
+			thread(Kill, CurrentRun.Hero)
+			wait(0.15)
+
+			FadeIn({ Duration = 0.5 })
+		end)
+
+		ModUtil.Path.Override("KillHero", function(victim, triggerArgs)
+			local killer = triggerArgs.AttackerTable
+			thread(CheckOnDeathPowers, victim, killer, triggerArgs.SourceWeapon)
+			for k, spawnThreadName in pairs(CurrentRun.CurrentRoom.SpawnThreads) do
+				killTaggedThreads(spawnThreadName)
+			end
+			CurrentRun.CurrentRoom.SpawnThreads = {}
+			killWaitUntilThreads("RequiredKillEnemyKilledOrSpawned")
+			killWaitUntilThreads("AllRequiredKillEnemiesDead")
+			killWaitUntilThreads("AllEncounterEnemiesDead")
+			killWaitUntilThreads("RequiredEnemyKilled")
+			killWaitUntilThreads(UIData.BoonMenuId)
+			ClearGameplayElapsedTimeMultipliers()
+			ClearPauseMenuTakeover()
+			EndAmbience(0.5)
+			EndMusic(AudioState.MusicId, AudioState.MusicName, triggerArgs.MusicEndTime or 0.0)
+			if killer == nil then
+				killer = {}
+				killer.Name = triggerArgs.AttackerName
+				killer.ObjectId = triggerArgs.AttackerId
+			end
+			local killedByName = killer.Name or triggerArgs.SourceWeapon
+			CurrentRun.KilledByName = killedByName
+			GameState.LastKilledByName = killedByName or GameState.LastKilledByName
+			if GetConfigOptionValue({ Name = "EditingMode" }) then
+				SetAnimation({ Name = "ZagreusDeadStartBlood", DestinationId = CurrentRun.Hero.ObjectId })
+				return
+			end
+			AddTimerBlock(CurrentRun, "HandleDeath")
+			if ActiveScreens.TraitTrayScreen ~= nil then
+				TraitTrayScreenClose(ActiveScreens.TraitTrayScreen)
+			end
+			ClearHealthShroud()
+			SessionMapState.HandlingDeath = true
+			CurrentRun.Hero.IsDead = true
+			CurrentRun.ActiveBiomeTimer = false
+			CurrentRun.ActiveBiomeTimerKeepsake = false
+			if ShouldIncrementEasyMode() then
+				GameState.EasyModeLevel = GameState.EasyModeLevel + 1
+			end
+			if not CurrentRun.Cleared then -- Already recorded if cleared
+				RecordRunStats()
+			end
+			InvalidateCheckpoint()
+			FinishTargetMarker(killer)
+			ResetObjectives()
+			if killer.Name ~= nil and killer.ObjectId ~= nil and not killer.SkipModifiers then
+				GameState.CauseOfDeath = GetGenusName(killer)
+			end
+			local deathPresentationFunctionName = "DeathPresentation"
+			CallFunctionName(deathPresentationFunctionName, CurrentRun, killer, triggerArgs)
+			AddInputBlock({ Name = "MapLoad" })
+
+			CurrentRun.CurrentRoom.EndingHealth = CurrentRun.Hero.Health
+			table.insert(CurrentRun.RoomHistory, CurrentRun.CurrentRoom)
+			UpdateRunHistoryCache(CurrentRun, CurrentRun.CurrentRoom)
+
+			GameState.Resources.Money = 0
+			CurrentRun.NumRerolls = GetTotalHeroTraitValue("RerollCount")
+			CurrentRun.NumTalentPoints = GetTotalHeroTraitValue("TalentPointCount")
+			CurrentRun.ShrineUpgradesDisabled = {}
+
+			GamePhaseTick({ Ticks = GetDeathGamePhaseTicks(), SkipGarden = true })
+			SessionMapState.HandlingDeath = false
+			CurrentRun.Hero.Health = CurrentRun.Hero.MaxHealth
+			CurrentRun.Hero.HealthBuffer = 0
+			CurrentRun.Hero.Mana = CurrentRun.Hero.MaxMana
+			CurrentRun.Hero.ReserveManaSources = {}
+
+			if CurrentRun.Hero.Weapons.WeaponLob then
+				ReloadAmmo({ Name = "WeaponLob" })
+			end
+			for resourceName, resourceData in pairs(ResourceData) do
+				if resourceData.RunResource then
+					GameState.Resources[resourceName] = 0
+				end
+			end
+			local currentRoom = CurrentRun.CurrentRoom
+			local deathMap = GameData.HubMapName
+			GameState.LocationName = HubRoomData.BaseHub.SaveProfileLocationText
+			RandomSetNextInitSeed()
+			for deathMapName, deathMapData in pairs( HubRoomData ) do
+				if deathMapData.OnDeathLoadRequirements ~= nil then
+					for k, gameStateRequirements in pairs( deathMapData.OnDeathLoadRequirements ) do
+						if IsGameStateEligible( CurrentRun, gameStateRequirements ) then
+							deathMap = deathMapName
+							break
+						end
+					end
+				end
+			end
+			CurrentRun.Hero.PreDeathTraits = CurrentRun.Hero.Traits
+			if config.Skip.RunEndCutscene.RespawnInTrainingGrounds then
+				deathMap = "Hub_PreRun"
+			end
+			RequestSave({ StartNextMap = deathMap, DevSaveName = CreateDevSaveName(CurrentRun, { StartNextMap = deathMap, PostDeath = true, }), SendSave = true })
+			ClearUpgrades()
+			SetConfigOption({ Name = "FlipMapThings", Value = false })
+			LoadMap({ Name = deathMap, ResetBinks = true })
+		end)
+	end
+
+	if config.Skip.RunDialog then
+		ModUtil.Path.Wrap("PlayTextLines", function(base, source, textLines, args)
+			if CurrentRun.Hero.IsDead then
+				return base(source, textLines, args)
+			end
+			return
+		end)
+	end
+
+	if config.Skip.DeathCutScene then
+		ModUtil.Path.Context.Wrap("DeathPresentation", function()
+			ModUtil.Path.Wrap("wait", function(...)
+				return
+			end)
+		end)
+	end
+end

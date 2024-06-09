@@ -41,6 +41,15 @@ local config = {
 		Enabled = true,
 		RepeatableReward = false
 	},
+	Skip = {
+		Enabled = true,
+		RunEndCutscene = {
+			Enabled = true,
+			RespawnInTrainingGrounds = false,
+		},
+		DeathCutScene = false,
+		RunDialog = false,
+	},
 }
 
 local description = {
@@ -84,6 +93,15 @@ local description = {
 	RepeatableChaosTrials = {
 		Enabled = "Enable to make all Chaos Trials repeatable.",
 		RepeatableReward = "Enable to make repeating Chaos Trials still grant Stardust."
+	},
+	Skip = {
+		Enabled = "Enable to skip certain cutscenes and events.",
+		RunEndCutscene = {
+			Enabled = "Enable to skip the end run cutscene and returning to main menu with the early access message.",
+			RespawnInTrainingGrounds = "Enable to respawn in the training grounds instead of the crossroads.",
+		},
+		DeathCutScene = "Enable to skip the player death cutscene.",
+		RunDialog = "Enable to skip all dialogs during runs.",
 	},
 }
 
