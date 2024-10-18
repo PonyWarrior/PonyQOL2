@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.1] - 2024-10-18
 
+### Fixed
+
+- Fixed door indicators causing a crash on encounter end
+
 ## [0.9.0] - 2024-06-09
 
 ### Added
