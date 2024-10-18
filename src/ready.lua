@@ -600,8 +600,13 @@ if config.DoorIndicators.Enabled then
 		EphyraZoomOut_override(usee)
 	end)
 
-	ModUtil.Path.Override("CreateDoorRewardPreview", function(exitDoor, chosenRewardType, chosenLootName, index, args)
-		CreateDoorRewardPreview_override(exitDoor, chosenRewardType, chosenLootName, index, args)
+	ModUtil.Path.Context.Wrap("CreateDoorRewardPreview", function()
+		ModUtil.Path.Wrap("HasHeroTraitValue", function(func, propertyName)
+			if propertyName == "AddDoorDetail" then
+				return true
+			end
+			return func(propertyName)
+		end)
 	end)
 end
 
