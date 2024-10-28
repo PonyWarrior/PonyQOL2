@@ -25,6 +25,9 @@ if config.AlwaysEncounterStoryRooms.Enabled then
 
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMin = 1
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMax = 5
+
+	RoomSetData.O.P_Story01.ForceAtBiomeDepthMin = 1
+	RoomSetData.O.P_Story01.ForceAtBiomeDepthMax = 5
 end
 
 if config.GodMode.Enabled then
