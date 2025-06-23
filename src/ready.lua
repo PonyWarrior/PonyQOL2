@@ -14,20 +14,22 @@ end)
 data = modutil.mod.Mod.Register(_PLUGIN.guid).Data
 
 if config.AlwaysEncounterStoryRooms.Enabled then
-	RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 1
+	RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 4
 	RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
 
-	RoomSetData.G.G_Story01.ForceAtBiomeDepthMin = 1
+	RoomSetData.G.G_Story01.ForceAtBiomeDepthMin = 3
 	RoomSetData.G.G_Story01.ForceAtBiomeDepthMax = 6
 
 	RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
 	RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
 
-	RoomSetData.O.O_Story01.ForceAtBiomeDepthMin = 1
+	RoomSetData.O.O_Story01.ForceAtBiomeDepthMin = 3
 	RoomSetData.O.O_Story01.ForceAtBiomeDepthMax = 5
 
-	RoomSetData.P.P_Story01.ForceAtBiomeDepthMin = 1
-	RoomSetData.P.P_Story01.ForceAtBiomeDepthMax = 5
+	RoomSetData.P.P_Story01.ForceAtBiomeDepthMin = 2
+	RoomSetData.P.P_Story01.ForceAtBiomeDepthMax = 7
+
+	-- I_Story01 (Hades) natively forced
 end
 
 if config.GodMode.Enabled then

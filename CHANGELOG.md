@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed story rooms appearing at depths they weren't supposed to
+
 ## [0.9.4] - 2025-06-23
 
 ### Changed
