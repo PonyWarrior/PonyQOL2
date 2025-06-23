@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] - 2025-06-23
+
 ### Changed
 
 - Fixed story rooms appearing at depths they weren't supposed to
@@ -113,7 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added boss numeric health
 - Added quit anywhere
 
-[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.4...HEAD
+[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.5...HEAD
+[0.9.5]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.2...0.9.3
 [0.9.2]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.1...0.9.2
