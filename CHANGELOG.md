@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2025-06-23
+
 ### Changed
 
 - Fixed Chaos trials menu crash
@@ -107,7 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added boss numeric health
 - Added quit anywhere
 
-[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.3...HEAD
+[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.4...HEAD
+[0.9.4]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.2...0.9.3
 [0.9.2]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.0...0.9.1
