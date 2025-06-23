@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed Chaos trials menu crash
+- Fixed crashing on death
+- Fixed timer not stopping during boons
+- Fixed door icons
+
 ## [0.9.3] - 2024-10-28
 
 ## [0.9.2] - 2024-10-28

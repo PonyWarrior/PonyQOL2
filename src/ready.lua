@@ -537,8 +537,10 @@ if config.SlowEffectsOnTimer.Enabled then
 
 		GameState.TotalTime = GameState.TotalTime + elapsed
 		-- MOD START
-		local timeMult = GetGameplayElapsedTimeMultiplier()
-		elapsed = elapsed * timeMult
+		local timeMultEnv = GetGameplayElapsedTimeMultiplier()
+		local timeMultPlayer = GetPlayerGameplayElapsedTimeMultiplier()
+		elapsed = elapsed * timeMultEnv
+		elapsed = elapsed * timeMultPlayer
 		-- MOD END
 		CurrentRun.TotalTime = CurrentRun.TotalTime + elapsed
 
@@ -546,42 +548,42 @@ if config.SlowEffectsOnTimer.Enabled then
 			return
 		end
 
-		if not IsEmpty(CurrentRun.BlockTimerFlags) then
+		if not IsEmpty( CurrentRun.BlockTimerFlags ) or not IsEmpty( MapState.BlockTimerFlags ) then
 			return
 		end
 
 		GameState.GameplayTime = GameState.GameplayTime + elapsed
 		CurrentRun.GameplayTime = CurrentRun.GameplayTime + elapsed
-		if CurrentRun.ActiveBiomeTimerKeepsake and not IsBiomeTimerPaused() and HeroHasTrait("SpeedRunBossKeepsake") and not CurrentRun.SpeedRunBossKeepsakeTriggered then
-			CurrentRun.BiomeTimeKeepsake = CurrentRun.BiomeTimeKeepsake - elapsed
-			if CurrentRun.BiomeTimeKeepsake <= 0 and (CurrentRun.BiomeTimeKeepsake + elapsed) > 0 then
-				thread(SpeedKeepsakeExpiredPresentation)
-			end
-		end
+
 		if HeroHasTrait("TimedBuffKeepsake") then
 			if not IsBiomeTimerPaused() then
 				local traitData = GetHeroTrait("TimedBuffKeepsake")
 				traitData.CurrentTime = traitData.CurrentTime - elapsed
-				if traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
-					traitData.CustomTrayText = traitData.ZeroBonusTrayText
-					EndTimedBuff(traitData)
-					thread(TimedBuffExpiredPresentation, traitData)
-					ReduceTraitUses(traitData, { Force = true })
+				if traitData.CurrentTime  <= 0 and (traitData.CurrentTime  + elapsed) > 0 then
+					traitData.CustomName = traitData.ZeroBonusTrayText
+					EndTimedBuff( traitData )
+					thread( TimedBuffExpiredPresentation, traitData )
+					ReduceTraitUses( traitData, {Force = true } )
 				end
 			end
 		end
-
+		
 		if HeroHasTrait("ChaosTimeCurse") then
 			if not IsBiomeTimerPaused() then
 				local traitData = GetHeroTrait("ChaosTimeCurse")
 				traitData.CurrentTime = traitData.CurrentTime - elapsed
 				local threshold = 30
-				if traitData.CurrentTime <= threshold and (traitData.CurrentTime + elapsed) > threshold then
-					ChaosTimerAboutToExpirePresentation(threshold)
-				elseif traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
-					thread(SacrificeHealth,
-						{ SacrificeHealthMin = traitData.Damage, SacrificeHealthMax = traitData.Damage, MinHealth = 0 })
-					thread(RemoveTraitData, CurrentRun.Hero, traitData)
+				if traitData.CurrentTime  <= threshold and (traitData.CurrentTime  + elapsed) > threshold then
+					ChaosTimerAboutToExpirePresentation(threshold )
+				elseif traitData.CurrentTime  <= 0 and (traitData.CurrentTime  + elapsed) > 0 then
+					if not CurrentRun.Hero.InvulnerableFlags.BlockDeath then
+						CurrentRun.CurrentRoom.Encounter.TookChaosCurseDamage = true
+						CurrentRun.CurrentRoom.KilledByChaosCurse = true
+						thread( SacrificeHealth, { SacrificeHealthMin = traitData.Damage, SacrificeHealthMax = traitData.Damage, MinHealth = 0, AttackerName = "TrialUpgrade" } )
+					end
+					if not CurrentRun.Hero.IsDead then
+						thread( RemoveTraitData, CurrentRun.Hero, traitData )
+					end
 				end
 			end
 		end
@@ -590,7 +592,7 @@ if config.SlowEffectsOnTimer.Enabled then
 			CurrentRun.BiomeTime = CurrentRun.BiomeTime - elapsed
 			local threshold = 30
 			if CurrentRun.BiomeTime <= threshold and (CurrentRun.BiomeTime + elapsed) > threshold then
-				BiomeTimerAboutToExpirePresentation(threshold)
+				BiomeTimerAboutToExpirePresentation(threshold )
 			elseif CurrentRun.BiomeTime <= 0 and (CurrentRun.BiomeTime + elapsed) > 0 then
 				BiomeTimerExpiredPresentation()
 			end
@@ -603,13 +605,8 @@ if config.DoorIndicators.Enabled then
 		EphyraZoomOut_override(usee)
 	end)
 
-	ModUtil.Path.Context.Wrap("CreateDoorRewardPreview", function()
-		ModUtil.Path.Wrap("HasHeroTraitValue", function(func, propertyName)
-			if propertyName == "AddDoorDetail" then
-				return true
-			end
-			return func(propertyName)
-		end)
+	ModUtil.Path.Override("PopulateDoorRewardPreviewSubIcons", function(exitDoor, args)
+		return PopulateDoorRewardPreviewSubIcons_override(exitDoor, args)
 	end)
 end
 
@@ -632,7 +629,7 @@ if config.RepeatableChaosTrials.Enabled then
 
 	ModUtil.Path.Wrap("MouseOverBounty", function(base, button)
 		base(button)
-		if GameState.BountiesCompleted[button.Data.Name] then
+		if GameState.PackagedBountyClears[button.Data.Name] then
 			SetAlpha({ Id = button.Screen.Components.SelectButton.Id, Fraction = 1.0, Duration = 0.2 })
 		end
 	end)
@@ -640,6 +637,7 @@ end
 
 if config.Skip.Enabled then
 	if config.Skip.RunEndCutscene then
+
 		ModUtil.Path.Override("EndEarlyAccessPresentation", function()
 			AddInputBlock({ Name = "EndEarlyAccessPresentation" })
 			SetPlayerInvulnerable("EndEarlyAccessPresentation")
@@ -669,107 +667,6 @@ if config.Skip.Enabled then
 			wait(0.15)
 
 			FadeIn({ Duration = 0.5 })
-		end)
-
-		ModUtil.Path.Override("KillHero", function(victim, triggerArgs)
-			local killer = triggerArgs.AttackerTable
-			thread(CheckOnDeathPowers, victim, killer, triggerArgs.SourceWeapon)
-			for k, spawnThreadName in pairs(CurrentRun.CurrentRoom.SpawnThreads) do
-				killTaggedThreads(spawnThreadName)
-			end
-			CurrentRun.CurrentRoom.SpawnThreads = {}
-			killWaitUntilThreads("RequiredKillEnemyKilledOrSpawned")
-			killWaitUntilThreads("AllRequiredKillEnemiesDead")
-			killWaitUntilThreads("AllEncounterEnemiesDead")
-			killWaitUntilThreads("RequiredEnemyKilled")
-			killWaitUntilThreads(UIData.BoonMenuId)
-			ClearGameplayElapsedTimeMultipliers()
-			ClearPauseMenuTakeover()
-			EndAmbience(0.5)
-			EndMusic(AudioState.MusicId, AudioState.MusicName, triggerArgs.MusicEndTime or 0.0)
-			if killer == nil then
-				killer = {}
-				killer.Name = triggerArgs.AttackerName
-				killer.ObjectId = triggerArgs.AttackerId
-			end
-			local killedByName = killer.Name or triggerArgs.SourceWeapon
-			CurrentRun.KilledByName = killedByName
-			GameState.LastKilledByName = killedByName or GameState.LastKilledByName
-			if GetConfigOptionValue({ Name = "EditingMode" }) then
-				SetAnimation({ Name = "ZagreusDeadStartBlood", DestinationId = CurrentRun.Hero.ObjectId })
-				return
-			end
-			AddTimerBlock(CurrentRun, "HandleDeath")
-			if ActiveScreens.TraitTrayScreen ~= nil then
-				TraitTrayScreenClose(ActiveScreens.TraitTrayScreen)
-			end
-			ClearHealthShroud()
-			SessionMapState.HandlingDeath = true
-			CurrentRun.Hero.IsDead = true
-			CurrentRun.ActiveBiomeTimer = false
-			CurrentRun.ActiveBiomeTimerKeepsake = false
-			if ShouldIncrementEasyMode() then
-				GameState.EasyModeLevel = GameState.EasyModeLevel + 1
-			end
-			if not CurrentRun.Cleared then -- Already recorded if cleared
-				RecordRunStats()
-			end
-			InvalidateCheckpoint()
-			FinishTargetMarker(killer)
-			ResetObjectives()
-			if killer.Name ~= nil and killer.ObjectId ~= nil and not killer.SkipModifiers then
-				GameState.CauseOfDeath = GetGenusName(killer)
-			end
-			local deathPresentationFunctionName = "DeathPresentation"
-			CallFunctionName(deathPresentationFunctionName, CurrentRun, killer, triggerArgs)
-			AddInputBlock({ Name = "MapLoad" })
-
-			CurrentRun.CurrentRoom.EndingHealth = CurrentRun.Hero.Health
-			table.insert(CurrentRun.RoomHistory, CurrentRun.CurrentRoom)
-			UpdateRunHistoryCache(CurrentRun, CurrentRun.CurrentRoom)
-
-			GameState.Resources.Money = 0
-			CurrentRun.NumRerolls = GetTotalHeroTraitValue("RerollCount")
-			CurrentRun.NumTalentPoints = GetTotalHeroTraitValue("TalentPointCount")
-			CurrentRun.ShrineUpgradesDisabled = {}
-
-			GamePhaseTick({ Ticks = GetDeathGamePhaseTicks(), SkipGarden = true })
-			SessionMapState.HandlingDeath = false
-			CurrentRun.Hero.Health = CurrentRun.Hero.MaxHealth
-			CurrentRun.Hero.HealthBuffer = 0
-			CurrentRun.Hero.Mana = CurrentRun.Hero.MaxMana
-			CurrentRun.Hero.ReserveManaSources = {}
-
-			if CurrentRun.Hero.Weapons.WeaponLob then
-				ReloadAmmo({ Name = "WeaponLob" })
-			end
-			for resourceName, resourceData in pairs(ResourceData) do
-				if resourceData.RunResource then
-					GameState.Resources[resourceName] = 0
-				end
-			end
-			local currentRoom = CurrentRun.CurrentRoom
-			local deathMap = GameData.HubMapName
-			GameState.LocationName = HubRoomData.BaseHub.SaveProfileLocationText
-			RandomSetNextInitSeed()
-			for deathMapName, deathMapData in pairs( HubRoomData ) do
-				if deathMapData.OnDeathLoadRequirements ~= nil then
-					for k, gameStateRequirements in pairs( deathMapData.OnDeathLoadRequirements ) do
-						if IsGameStateEligible( CurrentRun, gameStateRequirements ) then
-							deathMap = deathMapName
-							break
-						end
-					end
-				end
-			end
-			CurrentRun.Hero.PreDeathTraits = CurrentRun.Hero.Traits
-			if config.Skip.RunEndCutscene.RespawnInTrainingGrounds then
-				deathMap = "Hub_PreRun"
-			end
-			RequestSave({ StartNextMap = deathMap, DevSaveName = CreateDevSaveName(CurrentRun, { StartNextMap = deathMap, PostDeath = true, }), SendSave = true })
-			ClearUpgrades()
-			SetConfigOption({ Name = "FlipMapThings", Value = false })
-			LoadMap({ Name = deathMap, ResetBinks = true })
 		end)
 	end
 

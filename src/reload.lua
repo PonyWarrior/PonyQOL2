@@ -239,6 +239,173 @@ if config.DoorIndicators.Enabled then
 		Destroy({ Ids = idsCreated })
 		Destroy({ Ids = letterboxIds })
 	end
+
+	function PopulateDoorRewardPreviewSubIcons_override(exitDoor, args)
+		local subIcons = {}
+		local room = exitDoor.Room
+
+		if not args.RewardHidden and not args.SkipRoomSubIcons then
+
+			if room.RewardPreviewIcon ~= nil then
+				table.insert( subIcons, { Name = room.RewardPreviewIcon } )
+			end
+
+			local chosenRewardTypes = {}
+			if args.CageRewards ~= nil then
+				for i, cageReward in ipairs( args.CageRewards ) do
+					table.insert( chosenRewardTypes, cageReward.RewardType )
+				end
+			else
+				table.insert( chosenRewardTypes, args.ChosenRewardType )
+			end
+
+			local resourcesInRoom = {}
+
+			for i, rewardType in ipairs( chosenRewardTypes ) do
+				local consumableData = ConsumableData[rewardType]
+				if consumableData ~= nil and consumableData.AddResources ~= nil then
+					for resourceName in pairs( consumableData.AddResources ) do
+						resourcesInRoom[resourceName] = true
+					end
+				end
+			end
+
+			if not exitDoor.SkipResourcePinIcons then
+				local requirementArgs = { RoomSetName = room.RoomSetName }
+				-- MOD START
+				if Contains(room.LegalEncounters, "HealthRestore") then
+					table.insert(subIcons, { Name = "ExtraLifeHeart" })
+				end
+				-- MOD END
+				if room.HarvestPointsAllowed > 0 then
+					table.insert(subIcons, { Name = "GatherIcon" }) -- MOD
+					for i, option in ipairs( HarvestData.WeightedOptions ) do
+						if option.AddResources ~= nil and IsGameStateEligible( option, option.GameStateRequirements, requirementArgs ) then
+							for resourceName in pairs( option.AddResources ) do
+								resourcesInRoom[resourceName] = true
+							end
+							break
+						end
+					end
+				end
+				if room.ShovelPointSuccess and HasAccessToTool( "ToolShovel" ) then
+					table.insert(subIcons, { Name = "ShovelIcon" }) -- MOD
+					for i, option in ipairs( ShovelPointData.WeightedOptions ) do
+						if IsGameStateEligible( option, option.GameStateRequirements, requirementArgs ) then
+							for resourceName in pairs( option.AddResources ) do
+								-- Determine what plant this seed grows into
+								local seedData = GardenData.Seeds[resourceName]
+								if seedData ~= nil and #seedData.RandomOutcomes == 1 then
+									for plantName in pairs( seedData.RandomOutcomes[1].AddResources ) do
+										resourcesInRoom[plantName] = true
+									end
+								end
+							end
+							break
+						end
+					end
+				end
+				if room.PickaxePointSuccess and HasAccessToTool( "ToolPickaxe" ) then
+					table.insert(subIcons, { Name = "PickaxeIcon" }) -- MOD
+					for i, option in ipairs( PickaxePointData.WeightedOptions ) do
+						if IsGameStateEligible( option, option.GameStateRequirements, requirementArgs ) then
+							resourcesInRoom[option.ResourceName] = true
+							break
+						end
+					end
+				end
+				if room.ExorcismPointSuccess and HasAccessToTool( "ToolExorcismBook", requirementArgs ) then
+					table.insert(subIcons, { Name = "ExorcismIcon" }) -- MOD
+					resourcesInRoom.MemPointsCommon = true
+				end
+				-- MOD START
+				if room.FishingPointSuccess and HasAccessToTool("ToolFishingRod") then
+					table.insert(subIcons, { Name = "FishingIcon" })
+				end
+				-- MOD END
+				-- no need to check for fish; their appearance is random and they aren't used in recipes
+			end
+
+			local hasPin = false
+			local hasEnoughForPins = true
+			for resourceName in pairs( resourcesInRoom ) do
+				local amountNeededByPins = GetResourceAmountNeededByPins( resourceName )
+				if amountNeededByPins > 0 then
+					hasPin = true
+					if not HasResource( resourceName, amountNeededByPins ) then
+						hasEnoughForPins = false
+						break
+					end
+				end
+			end
+
+			if hasPin then
+				local forgetMeNotIconData = { Name = "RoomRewardSubIcon_ForgetMeNot" }
+				if hasEnoughForPins then
+					forgetMeNotIconData.Animation = "RoomRewardSubIcon_ForgetMeNot_Complete"
+				end
+				table.insert( subIcons, forgetMeNotIconData )
+			end
+
+			local existingPinIconId = exitDoor.AdditionalIcons.RoomRewardSubIcon_ForgetMeNot
+			if existingPinIconId ~= nil then
+				if hasPin then
+					SetAlpha({ Id = existingPinIconId, Fraction = 1.0, Duration = 0.2 })
+				else
+					SetAlpha({ Id = existingPinIconId, Fraction = 0.0, Duration = 0.2 })
+				end
+			end
+
+			local hasOnion = false
+			for i, rewardType in ipairs( chosenRewardTypes ) do
+				if rewardType == "Boon" or rewardType == "HermesUpgrade" then
+					if GetNumShrineUpgrades( "BoonSkipShrineUpgrade" ) > CurrentRun.BiomeBoonSkipCount then
+						hasOnion = true
+						table.insert( subIcons, { Name = "RoomRewardSubIcon_Onion" } )
+						break
+					end
+				end
+			end
+
+			local existingOnionIconId = exitDoor.AdditionalIcons.RoomRewardSubIcon_Onion
+			if existingOnionIconId ~= nil then
+				if hasOnion then
+					SetAlpha({ Id = existingOnionIconId, Fraction = 1.0, Duration = 0.2 })
+				else
+					SetAlpha({ Id = existingOnionIconId, Fraction = 0.0, Duration = 0.2 })
+				end
+			end
+
+			local hasQuestIcon = false
+			local encountersChecked = {}
+			if room.LegalEncounters ~= nil then
+				for k, encounterName in pairs( room.LegalEncounters ) do
+					if not encountersChecked[encounterName] and not GameState.EncountersCompletedCache[encounterName] and HasActiveQuestForName( encounterName ) then
+						local encounterData = EncounterData[encounterName]
+						if encounterData.GameStateRequirements == nil or IsGameStateEligible( encounterData, encounterData.GameStateRequirements ) then
+							hasQuestIcon = true
+							break
+						end
+					end
+					encountersChecked[encounterName] = true
+				end
+			end
+			if not hasQuestIcon and room.ForceLootName ~= nil then
+				local questTraitName = room.ForceLootName
+				if SpellData[questTraitName] ~= nil then
+					questTraitName = SpellData[questTraitName].TraitName or questTraitName
+				end
+				if not GameState.TraitsTaken[questTraitName] and HasActiveQuestForName( questTraitName ) then
+					hasQuestIcon = true
+				end
+			end
+			if hasQuestIcon then
+				table.insert( subIcons, { Name = "RoomRewardSubIcon_FatedList" } )
+			end
+		end
+
+		return subIcons
+	end
 end
 
 if config.PermanentLocationCount.Enabled then
@@ -254,38 +421,34 @@ end
 if config.RepeatableChaosTrials.Enabled then
 	function BountyBoardScreenDisplayCategory_override(screen, categoryIndex)
 		local components = screen.Components
-		local slotName = screen.ItemCategories[categoryIndex].Name
 		local category = screen.ItemCategories[categoryIndex]
 		local slotName = category.Name
+
 		screen.ActiveCategoryIndex = categoryIndex
+
 		screen.ItemStartX = screen.ItemStartX + ScreenCenterNativeOffsetX
 		screen.ItemStartY = screen.ItemStartY + ScreenCenterNativeOffsetY
+
 		local itemLocationX = screen.ItemStartX
 		local itemLocationY = screen.ItemStartY
+
 		local activeBounties = {}
 		local completedBounties = {}
+		--MOD START
 		local ineligibleBounties = {}
+		--MOD END
 
-		for i, bountyName in ipairs(screen.ItemCategories[screen.ActiveCategoryIndex]) do
+		for i, bountyName in ipairs( screen.ItemCategories[screen.ActiveCategoryIndex] ) do
 			local bountyData = BountyData[bountyName]
 			if not bountyData.DebugOnly then
-				bountyData.BestClearTime = 5999.99
-				bountyData.BestClearTimeString = GetTimerString(bountyData.BestClearTime, 2)
-				local allRuns = ShallowCopyTable(GameState.RunHistory)
-				table.insert(allRuns, CurrentRun)
-				for runIndex, run in pairs(allRuns) do
-					if run.BountyCleared and run.ActiveBounty == bountyData.Name and run.GameplayTime < bountyData.BestClearTime then
-						bountyData.BestClearTime = run.GameplayTime
-						bountyData.BestClearTimeString = GetTimerString(bountyData.BestClearTime, 2)
-					end
-				end
-
-				if GameState.BountiesCompleted[bountyName] then
+				if GameState.PackagedBountyClears[bountyName] ~= nil then
 					table.insert(completedBounties, bountyData)
-				elseif IsGameStateEligible(CurrentRun, bountyData, bountyData.UnlockGameStateRequirements) then
+				elseif IsGameStateEligible(bountyData, bountyData.UnlockGameStateRequirements) then
 					table.insert(activeBounties, bountyData)
+					--MOD START
 				else
 					table.insert(ineligibleBounties, bountyData)
+					--MOD END
 				end
 			end
 		end
@@ -293,11 +456,12 @@ if config.RepeatableChaosTrials.Enabled then
 		local firstUseable = false
 		screen.NumItems = 0
 
-		for k, bountyData in ipairs(activeBounties) do
+		for k, bountyData in ipairs( activeBounties ) do
+
 			-- BountyButton
 			screen.NumItems = screen.NumItems + 1
 			local button = CreateScreenComponent({ Name = "BlankInteractableObstacle", X = itemLocationX, Y = itemLocationY, Group = screen.ComponentData.DefaultGroup })
-			button.MouseOverSound = "/SFX/Menu Sounds/DialoguePanelOutMenu"
+			button.MouseOverSound = "/SFX/Menu Sounds/MirrorMenuToggle"
 			button.OnPressedFunctionName = "StartPackagedBounty"
 			button.OnMouseOverFunctionName = "MouseOverBounty"
 			button.OnMouseOffFunctionName = "MouseOffBounty"
@@ -305,7 +469,7 @@ if config.RepeatableChaosTrials.Enabled then
 			button.Index = screen.NumItems
 			button.Screen = screen
 			AttachLua({ Id = button.Id, Table = button })
-			local bountyButtonKey = screen.ButtonName .. screen.NumItems
+			local bountyButtonKey = screen.ButtonName..screen.NumItems
 			components[bountyButtonKey] = button
 
 			local activeFormat = screen.ActiveFormat
@@ -313,20 +477,20 @@ if config.RepeatableChaosTrials.Enabled then
 			activeFormat.Text = bountyData.Text or bountyData.Name
 			activeFormat.LuaKey = "TempTextData"
 			activeFormat.LuaValue = bountyData
-			CreateTextBox(activeFormat)
+			CreateTextBox( activeFormat )
 
-			newButtonKey = "NewIcon" .. screen.NumItems
+			newButtonKey = "NewIcon"..screen.NumItems
 			if not GameState.QuestsViewed[bountyData.Name] then
 				-- New icon
 				components[newButtonKey] = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu" })
-				SetAnimation({ DestinationId = components[newButtonKey].Id, Name = "QuestLogNewQuest" })
+				SetAnimation({ DestinationId = components[newButtonKey].Id , Name = "QuestLogNewQuest" })
 				Attach({ Id = components[newButtonKey].Id, DestinationId = components[bountyButtonKey].Id, OffsetX = screen.NewIconOffsetX, OffsetY = screen.NewIconOffsetY })
 			end
 
-			if IsGameStateEligible(CurrentRun, bountyData, bountyData.CompleteGameStateRequirements) then
+			if IsGameStateEligible( bountyData, bountyData.CompleteGameStateRequirements ) then
 				local activeFlash = screen.ActiveFlash
 				activeFlash.Id = button.Id
-				Flash(activeFlash)
+				Flash( activeFlash )
 			end
 
 			itemLocationY = itemLocationY + screen.ItemSpacingY
