@@ -511,7 +511,21 @@ if config.RepeatableChaosTrials.Enabled then
 			local bountyButtonKey = screen.ButtonName .. screen.NumItems
 			components[bountyButtonKey] = button
 
-			local ineligibleFormat = screen.IneligibleFormat
+			local ineligibleFormat =
+			{
+				Color = Color.CostUnaffordableDark,
+				FontSize = 22,
+				OffsetX = -10, OffsetY = 0,
+				Font = "P22UndergroundSCMedium",
+				OutlineThickness = 0,
+				OutlineColor = {0,0,0,0.5},
+				ShadowBlur = 0, ShadowColor = {0,0,0,0.7}, ShadowOffset={0, 2},
+				Justification = "Center",
+				DataProperties =
+				{
+					OpacityWithOwner = true,
+				},
+			}
 			ineligibleFormat.Id = button.Id
 			ineligibleFormat.Text = bountyData.Text or bountyData.Name
 			ineligibleFormat.LuaKey = "TempTextData"

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed pitch back stone crash if you hadn't completed all chaos trials
+
 ## [0.9.5] - 2025-06-23
 
 ### Changed
