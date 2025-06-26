@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.7] - 2025-06-26
+
 ### Changed
 
 - Fixed door icons not visible in ephyra
@@ -127,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added boss numeric health
 - Added quit anywhere
 
-[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.6...HEAD
+[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.7...HEAD
+[0.9.7]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.6...0.9.7
 [0.9.6]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.5...0.9.6
 [0.9.5]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.3...0.9.4
