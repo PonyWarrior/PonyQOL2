@@ -7,6 +7,8 @@
 -- 	so you will most likely want to have it reference
 --	values and functions later defined in `reload.lua`.
 
+mod = modutil.mod.Mod.Register(_PLUGIN.guid)
+
 ModUtil.LoadOnce(function()
 	rom.data.reload_game_data()
 end)
@@ -603,13 +605,58 @@ if config.SlowEffectsOnTimer.Enabled then
 end
 
 if config.DoorIndicators.Enabled then
-	ModUtil.Path.Override("EphyraZoomOut", function(usee)
-		EphyraZoomOut_override(usee)
-	end)
 
 	ModUtil.Path.Override("PopulateDoorRewardPreviewSubIcons", function(exitDoor, args)
 		return PopulateDoorRewardPreviewSubIcons_override(exitDoor, args)
 	end)
+
+	ModUtil.Path.Override("AddDoorInfoIcon", function(args)
+		return AddDoorInfoIcon_override(args)
+	end)
+
+	local vfxFile = rom.path.combine(rom.paths.Content, 'Game/Animations/GUI_VFX.sjson')
+
+	sjson.hook(vfxFile, function(sjsonData)
+		return sjson_DoorIcons(sjsonData)
+	end)
+
+	function sjson_DoorIcons(sjsonData)
+		for _, v in ipairs(sjsonData.Animations) do
+			if v.Name == "BaseMiniRoomPreviewIcon" then
+				v.Scale = 0.75
+			end
+		end
+	end
+
+	local bgFile = rom.path.combine(rom.paths.Content, 'Game/Obstacles/Backgrounds.sjson')
+
+	local order_1 = {
+		"Name", "InheritFrom", "DisplayInEditor", "NeedsLife", "Thing"
+	}
+
+	local order_2 = {
+		"EditorOutlineDrawBounds", "Graphic", "TriggerOnSpawn"
+	}
+
+	local newSubItem = sjson.to_object({
+		EditorOutlineDrawBounds = false,
+		Graphic = "Dev\\Circle",
+		TriggerOnSpawn = false
+	}, order_2)
+
+	local newItem = sjson.to_object({
+		Name = "circle01",
+		InheritFrom = "1_BaseTerrainTile",
+		DisplayInEditor = true,
+		NeedsLife = false,
+		Thing = newSubItem,
+	}, order_1)
+
+	sjson.hook(bgFile, function(data)
+		table.insert(data.Obstacles, newItem)
+	end)
+
+	ObstacleData.EphyraExitDoor.SkipResourcePinIcons = false
 end
 
 if config.PermanentLocationCount.Enabled then

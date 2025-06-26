@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed door icons not visible in ephyra
+- Increased size of door icons and added a backing
+- PonyAO EphyraOverhaul integration : added a pylon animation to pylon rooms on top of the door icon
+
 ## [0.9.6] - 2025-06-24
 
 ### Changed
