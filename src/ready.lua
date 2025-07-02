@@ -9,9 +9,9 @@
 
 mod = modutil.mod.Mod.Register(_PLUGIN.guid)
 
-ModUtil.LoadOnce(function()
-	rom.data.reload_game_data()
-end)
+-- ModUtil.LoadOnce(function()
+-- 	rom.data.reload_game_data()
+-- end)
 
 data = modutil.mod.Mod.Register(_PLUGIN.guid).Data
 
