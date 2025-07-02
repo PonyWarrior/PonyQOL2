@@ -5,7 +5,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "PonyWarrior"
 name = "PonyQOL2"
-versionNumber = "0.9.7"
+versionNumber = "0.9.8"
 description = "Make your life easier with pony's quality of life 2, the returning mod from Hades 1."
 websiteUrl = "https://github.com/PonyWarrior/PonyQOL2"
 containsNsfwContent = false
