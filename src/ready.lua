@@ -408,6 +408,8 @@ if config.QuitAnywhere.Enabled then
 end
 
 if config.ProximityIndicator.Enabled then
+	--TODO : remake as a boon startup function, see WeakCrowdMana for example
+	-- also make the coloring an effect instead
 	OnPlayerMoveStarted {
 		function(args)
 			local threshold = GetProximityThreshold()
@@ -463,7 +465,7 @@ if config.ProximityIndicator.Enabled then
 					end
 				end
 			end
-			wait(0.1)
+			wait(0.3, RoomThreadName)
 		end
 	end
 
@@ -471,23 +473,7 @@ if config.ProximityIndicator.Enabled then
 		if enemy.IsDead or enemy.InvalidForProximity then
 			return false
 		end
-		if Contains(enemy.InheritFrom, "BaseTrap") then
-			enemy.InvalidForProximity = true
-			return false
-		end
-		if Contains(enemy.InheritFrom, "IsNeutral") then
-			enemy.InvalidForProximity = true
-			return false
-		end
-		if Contains(enemy.InheritFrom, "BaseBreakable") then
-			enemy.InvalidForProximity = true
-			return false
-		end
-		if Contains(enemy.InheritFrom, "BaseAlly") then
-			enemy.InvalidForProximity = true
-			return false
-		end
-		if Contains(enemy.InheritFrom, "BaseFamiliar") then
+		if not enemy.RequiredKill then
 			enemy.InvalidForProximity = true
 			return false
 		end
