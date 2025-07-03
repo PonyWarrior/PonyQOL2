@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.9] - 2025-07-03
+
 ### Changed
 
 - Fixed PromixityIndicator highlighting non-enemies
@@ -140,7 +142,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added boss numeric health
 - Added quit anywhere
 
-[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.8...HEAD
+[unreleased]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.9...HEAD
+[0.9.9]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.8...0.9.9
 [0.9.8]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.7...0.9.8
 [0.9.7]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.6...0.9.7
 [0.9.6]: https://github.com/PonyWarrior/PonyQOL2/compare/0.9.5...0.9.6
