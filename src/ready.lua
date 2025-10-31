@@ -548,12 +548,13 @@ if config.SlowEffectsOnTimer.Enabled then
 		if HeroHasTrait("TimedBuffKeepsake") then
 			if not IsBiomeTimerPaused() then
 				local traitData = GetHeroTrait("TimedBuffKeepsake")
+				traitData.CurrentTime = traitData.CurrentTime or 0
 				traitData.CurrentTime = traitData.CurrentTime - elapsed
-				if traitData.CurrentTime  <= 0 and (traitData.CurrentTime  + elapsed) > 0 then
+				if traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
 					traitData.CustomName = traitData.ZeroBonusTrayText
-					EndTimedBuff( traitData )
-					thread( TimedBuffExpiredPresentation, traitData )
-					ReduceTraitUses( traitData, {Force = true } )
+					EndTimedBuff(traitData)
+					thread(TimedBuffExpiredPresentation, traitData)
+					ReduceTraitUses(traitData, { Force = true })
 				end
 			end
 		end
@@ -561,18 +562,20 @@ if config.SlowEffectsOnTimer.Enabled then
 		if HeroHasTrait("ChaosTimeCurse") then
 			if not IsBiomeTimerPaused() then
 				local traitData = GetHeroTrait("ChaosTimeCurse")
+				traitData.CurrentTime = traitData.CurrentTime or 0
+
 				traitData.CurrentTime = traitData.CurrentTime - elapsed
 				local threshold = 30
-				if traitData.CurrentTime  <= threshold and (traitData.CurrentTime  + elapsed) > threshold then
-					ChaosTimerAboutToExpirePresentation(threshold )
-				elseif traitData.CurrentTime  <= 0 and (traitData.CurrentTime  + elapsed) > 0 then
+				if traitData.CurrentTime <= threshold and (traitData.CurrentTime + elapsed) > threshold then
+					ChaosTimerAboutToExpirePresentation(threshold)
+				elseif traitData.CurrentTime <= 0 and (traitData.CurrentTime + elapsed) > 0 then
 					if not CurrentRun.Hero.InvulnerableFlags.BlockDeath then
 						CurrentRun.CurrentRoom.Encounter.TookChaosCurseDamage = true
 						CurrentRun.CurrentRoom.KilledByChaosCurse = true
-						thread( SacrificeHealth, { SacrificeHealthMin = traitData.Damage, SacrificeHealthMax = traitData.Damage, MinHealth = 0, AttackerName = "TrialUpgrade" } )
+						thread(SacrificeHealth, { SacrificeHealthMin = traitData.Damage, SacrificeHealthMax = traitData.Damage, MinHealth = 0, AttackerName = "TrialUpgrade" })
 					end
 					if not CurrentRun.Hero.IsDead then
-						thread( RemoveTraitData, CurrentRun.Hero, traitData )
+						thread(RemoveTraitData, CurrentRun.Hero, traitData)
 					end
 				end
 			end
